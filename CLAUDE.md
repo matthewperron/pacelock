@@ -13,10 +13,10 @@ PaceLock is a simracing analytics tool that quantifies driver consistency using 
 This is a new project. Based on the requirements, the expected architecture will include:
 
 ### Core Components
-- **API Client**: iRacing API integration using Python with aiohttp/httpx for async requests
+- **API Client**: iRacing API integration using Python with `iracingdataapi` package for race data retrieval
 - **Data Processing**: Pandas & NumPy for lap time analysis, outlier filtering, and statistical calculations
 - **Consistency Scoring**: Python algorithm to calculate normalized consistency scores (0-100 percentile)
-- **Data Storage**: SQLite (MVP)
+- **Data Storage**: SQLite (built-in sqlite3 module) for MVP
 - **Analytics Engine**: FastAPI backend with Strawberry GraphQL for aggregation and trend analysis
 - **User Interface**: Svelte frontend with Tailwind CSS, served as static files
 
@@ -41,10 +41,48 @@ See [PaceLock Tech Stack Description](#pacelock-tech-stack-description) section 
 
 ## Development Commands
 
-### Backend (Python/FastAPI)
+### NPM Task Runner (Recommended)
 ```bash
-# Development server
-uvicorn main:app --reload --port 8000
+# One-time setup
+npm run setup
+
+# Run backend application
+npm run dev
+
+# Run backend API server (when FastAPI is implemented)
+npm run dev:server
+
+# Run frontend (when implemented)  
+npm run dev:frontend
+
+# Run full stack (backend + frontend)
+npm run dev:fullstack
+
+# Testing
+npm test
+npm run test:coverage
+
+# Code quality
+npm run format     # Format with black
+npm run lint       # Lint with flake8  
+npm run typecheck  # Type check with mypy
+npm run quality    # Run all quality checks
+
+# Utilities
+npm run clean              # Clean up cache files
+
+# Database
+npm run db                 # Open litecli for interactive database access
+npm run db:inspect         # Quick database table inspection
+```
+
+### Direct Python Commands (Alternative)
+```bash
+# Run main script
+python main.py
+
+# Development server (when FastAPI is implemented)
+uvicorn src.api.main:app --reload --port 8000
 
 # Testing
 pytest
@@ -56,25 +94,21 @@ flake8 src/ tests/
 mypy src/
 ```
 
-### Frontend (Svelte/Vite)
+### Frontend (Future - Svelte/Vite)
 ```bash
 # Development server
-npm run dev
+npm run dev:frontend
 
 # Build for production
 npm run build
 
 # Preview production build
 npm run preview
-
-# Linting and formatting
-npm run lint
-npm run format
 ```
 
 ## Key Implementation Notes
 
-- **iRacing API**: Use aiohttp/httpx for async requests with proper authentication and rate limiting
+- **iRacing API**: Use `iracingdataapi` package for seamless API integration with proper authentication and rate limiting (implemented in `iracing_api.py`)
 - **Outlier Detection**: Implement statistical algorithms in Pandas to filter invalid laps (pit stops, incidents, out-laps)
 - **Consistency Scoring**: Use NumPy for statistically sound variance calculations normalized across track types
 - **Caching**: Implement Redis or in-memory caching in FastAPI for frequently accessed race data
@@ -92,6 +126,9 @@ npm run format
 - **Database:** SQLite (MVP) — lightweight, file-based relational database for local development and prototyping; designed for easy migration to PostgreSQL for scalability.  
 - **ORM:** SQLAlchemy — database abstraction layer to enable seamless switching between SQLite and PostgreSQL.  
 - **Data Processing:** Pandas & NumPy — for statistical analysis and calculation of driver consistency scores from race telemetry data.
+- **iRacing API:** iracingdataapi — Python package for accessing iRacing's web API to retrieve race and session data.
+- **Database:** sqlite3 (built-in) — Python's built-in SQLite interface for local data storage during MVP phase.
+- **Database CLI:** litecli — Interactive command-line interface for SQLite database inspection and queries.
 
 ## Frontend
 - **Framework:** Svelte — lightweight, compile-time JavaScript framework enabling reactive UI with minimal bundle size (~2KB runtime).  
@@ -102,6 +139,57 @@ npm run format
 ## Hosting & Deployment
 - **Database & API:** Supabase (PostgreSQL) or local SQLite during MVP phase; hosted on Railway, Render, or similar affordable platforms.  
 - **Frontend:** Static hosting on GitHub Pages, Netlify, or similar, serving prebuilt Svelte app with API integration.
+
+# Project Structure
+
+```
+pacelock/
+├── main.py                    # Entry point script (runs src/api/main.py)
+├── package.json              # NPM configuration and task runner scripts
+├── requirements.txt           # Python dependencies
+├── .env                      # Environment variables (excluded from git)
+├── .gitignore               # Git ignore patterns
+├── README.md                # User documentation
+├── CLAUDE.md               # Development guidelines
+├── pacelock.db             # SQLite database (included in git for now)
+├── scripts/
+│   ├── setup.sh             # Setup script (creates venv, installs deps)
+│   └── dev.sh               # Development script (activates venv, runs app)
+└── src/
+    ├── __init__.py
+    └── api/
+        ├── __init__.py
+        ├── main.py          # Main application logic and orchestration
+        ├── iracing_api.py   # iRacing API integration
+        └── database.py      # Database operations and SQLite management
+```
+
+## File Dependencies
+- **main.py** - Project entry point script
+  - Purpose: Adds src/ to Python path and runs src/api/main.py
+- **package.json** - NPM configuration and task runner
+  - Purpose: Centralized script management for setup, development, testing, and deployment
+  - Scripts: setup, dev, test, lint, format, typecheck, clean
+- **scripts/setup.sh** - Development environment setup script
+  - Purpose: Creates virtual environment and installs Python dependencies
+- **scripts/dev.sh** - Development runner script
+  - Purpose: Activates virtual environment and runs the main application
+- **src/api/main.py** - Main application logic and orchestration
+  - Imports: `iracing_api.load_subsession_data()`, `database.initialize_database()`, `database.store_subsession_data()`
+  - Purpose: Orchestrate data flow, display session summaries, coordinate API and database operations
+- **src/api/iracing_api.py** - iRacing API integration module
+  - Dependencies: `iracingdataapi`, `python-dotenv`
+  - Purpose: Handle authentication, API calls, and data retrieval from iRacing
+  - Functions: `check_environment()`, `get_api_client()`, `load_subsession_data()`, `load_lap_times()`
+- **src/api/database.py** - Database operations and SQLite management
+  - Dependencies: `sqlite3`, `json`
+  - Purpose: Handle database initialization, data storage, and retrieval operations
+  - Functions: `initialize_database()`, `store_subsession_data()`, `get_subsession_data()`, `list_stored_subsessions()`, `store_lap_times()`
+- **requirements.txt** - Python package dependencies
+- **CLAUDE.md** - Project documentation and development guidelines
+- **README.md** - User-facing project documentation
+- **.env** - Environment variables (credentials, excluded from git)
+- **.gitignore** - Git ignore patterns (excludes .env, includes pacelock.db)
 
 # FINAL AGENT INSTRUCTIONS
 

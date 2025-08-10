@@ -122,6 +122,7 @@ dist-ssr/
 *.sqlite
 *.sqlite3
 database.db
+# pacelock.db - include in git for now
 *.db-journal
 
 # Environment variables

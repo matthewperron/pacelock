@@ -52,34 +52,86 @@ PaceLock aims to provide objective, data-driven insights into simracing performa
 ## Getting Started
 
 ### Prerequisites
-- Python 3.x
-- Node.js and npm
+- Node.js 18+ and npm (for task runner)
+- Python 3.9+ 
 - iRacing account and API access
 
-### Development Setup
+### Environment Setup
 
-**Backend**
+1. **Install Node.js and npm** (required for task runner)
+
+2. **Set up the project:**
+   ```bash
+   npm run setup
+   ```
+
+3. **Set iRacing credentials:**
+   ```bash
+   export IRACING_USERNAME=your_iracing_username
+   export IRACING_PASSWORD=your_iracing_password
+   ```
+   
+   Or create a `.env` file:
+   ```
+   IRACING_USERNAME=your_iracing_username
+   IRACING_PASSWORD=your_iracing_password
+   ```
+
+4. **Run the application:**
+   ```bash
+   npm run dev
+   ```
+
+### Development Commands
+
+**NPM Task Runner (Recommended)**
+```bash
+# One-time setup
+npm run setup
+
+# Development
+npm run dev                 # Run backend application
+npm run dev:server         # Run API server (when implemented)
+npm run dev:frontend       # Run frontend (when implemented)
+npm run dev:fullstack      # Run both backend and frontend
+
+# Testing
+npm test                   # Run tests
+npm run test:coverage      # Run tests with coverage
+
+# Code Quality
+npm run format             # Format code with black
+npm run lint               # Lint code with flake8
+npm run typecheck          # Type check with mypy
+npm run quality            # Run all quality checks
+
+# Utilities
+npm run clean              # Clean up cache files
+
+# Database
+npm run db                 # Open litecli for interactive database access
+npm run db:inspect         # Quick database table inspection
+```
+
+**Direct Python Commands (Alternative)**
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 
-# Start development server
-uvicorn main:app --reload --port 8000
+# Run main script
+python main.py
+
+# Start development server (when implemented)
+uvicorn src.api.main:app --reload --port 8000
 
 # Run tests
+pytest
 pytest --cov=src tests/
-```
 
-**Frontend**
-```bash
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
+# Code quality
+black src/ tests/
+flake8 src/ tests/
+mypy src/
 ```
 
 ## Contributing
